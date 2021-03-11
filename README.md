@@ -6,5 +6,5 @@ Records: </br>
 
 |Date | Model | Accuracy |
 | -- | -- | -- |
-| 2021.03.11| CNN | |
+| 2021.03.11| CNN | 0.98971|
 | 2021.03.11 | ResNet | |
