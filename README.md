@@ -7,4 +7,4 @@ Records: </br>
 |Date | Model | Accuracy |
 | -- | -- | -- |
 | 2021.03.11| CNN | |
-| 2021.03.11 | RNN | |
+| 2021.03.11 | ResNet | |
