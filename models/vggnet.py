@@ -1,4 +1,5 @@
 ## To- test ##
+## Training Accuracy: 0.9945 ##
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import datasets, layers, models
