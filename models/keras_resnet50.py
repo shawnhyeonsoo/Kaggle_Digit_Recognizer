@@ -1,0 +1,67 @@
+import tensorflow as tf
+
+from tensorflow.keras import datasets, layers, models
+from tensorflow.keras.layers import Dense, Input, Activation
+from tensorflow.keras import Model
+import pandas as pd
+import numpy as np
+
+from tensorflow.keras.applications import ResNet50
+
+
+gpus = tf.config.experimental.list_physical_devices('GPU')
+tf.config.experimental.set_memory_growth(gpus[0], True)
+
+f = pd.read_csv("train.csv")
+train_images = [list(f.iloc[i][1:]) for i in range(len((f)))]
+train_label = [f.iloc[i][0] for i in range(len(f))]
+train_images = np.array(train_images).reshape(-1,28,28,1)
+train_labels = np.array(train_label)
+
+t = pd.read_csv("test.csv")
+test_images = [list(t.iloc[i]) for i in range(len((t)))]
+test_images = np.array(test_images).reshape(-1,28,28,1)
+
+train_images, test_images = train_images / 255.0, test_images / 255.0
+
+input = Input(shape = (28,28,1))
+model = ResNet50(input_tensor=input, include_top= False, weights = None, pooling= 'max')
+model.summary()
+
+x = model.output
+x = layers.Flatten()(x)
+x = layers.Dense(1024, activation = 'relu')(x)
+x = layers.BatchNormalization()(x)
+#x = layers.Dropout(0.5)(x)
+x = layers.Dense(512, activation = 'relu')(x)
+x = layers.BatchNormalization()(x)
+#x = layers.Dropout(0.25)(x)
+x = layers.Dense(10, activation = 'softmax')(x)
+
+
+model = Model(model.input,x)
+model.summary()
+
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+model.fit(train_images, train_labels, epochs=30)
+#test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=2)
+#print(test_acc)
+
+
+results = []
+for i in range(len(test_images)):
+    results.append(int(tf.argmax(model.predict(test_images[i:i+1]),1)))
+
+import csv
+list1 = [1+i for i in range(len(test_images))]
+list2 = results
+
+d = zip(list1, list2)
+with open('output_mnist_resnet.csv', 'w',encoding = 'utf8') as myfile:
+    wr = csv.writer(myfile)
+    wr.writerow(("ImageId", "Label"))
+    wr.writerows(d)
+myfile.close()
